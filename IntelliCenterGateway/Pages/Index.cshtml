@@ -1,0 +1,34 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Home page";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+<div class="row" id="printcard"></div>
+
+<p id="output"></p>
+
+@section Scripts {
+    <script>
+        var connection = new signalR.HubConnectionBuilder().withUrl('/stream').build();
+
+        connection.start().then(() => {
+            connection.stream('Feed').subscribe({
+                next: (data) => {
+                    if (data.substring(0, 1) === '{')
+                        processMsg(JSON.parse(data));
+                    else
+                        console.log(data);
+                },
+                error: (err) => console.error(err),
+                complete: () => { }
+            });
+
+            var cmd = { "command": "GetQuery", "queryName": "GetHardwareDefinition", "arguments": "", "messageID": uuidv4() };
+
+            connection.invoke('Request', JSON.stringify(cmd));
+        }).catch((err) => console.error(err));
+    </script>
+}

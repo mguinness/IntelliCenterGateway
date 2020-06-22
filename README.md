@@ -19,6 +19,14 @@ Change the appsettings.json file to include the IP address of the IntelliCenter 
 }
 ```
 
+## Docker
+Clone repo and run
+```
+docker build . -t intellicentergateway
+docker run -it -p 8000:80 -e "Configuration__TelnetHost=192.168.1.100" intellicentergateway
+```
+
+
 ## Operation
 Once the website is running the home page should be shown.  Javascript on the page should connect to SignalR on the server and send a command to request the hardware definition of your IntelliCenter.
 

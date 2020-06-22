@@ -45,7 +45,10 @@ namespace IntelliCenterGateway
 
         public async Task Request(string cmd)
         {
-            await _telnetClient.Send(cmd);
+            if (_telnetClient.IsConnected)
+                await _telnetClient.Send(cmd);
+            else
+                _subject.OnNext("IntelliCenter unavailable");
         }
     }
 

@@ -68,6 +68,17 @@ namespace IntelliCenterGateway
             _ = WaitForMessage();
         }
 
+        /// <summary>
+        /// Gets a value indicating whether the underlying socket is connected to a remote host.
+        /// </summary>
+        /// <returns>
+        /// true if the underlying socket is connected to a remote resource; otherwise, false.
+        /// </returns>
+        public bool IsConnected
+        {
+            get { return _tcpClient == null || _tcpClient.Connected; }
+        }
+
         public async Task Send(string message)
         {
             try

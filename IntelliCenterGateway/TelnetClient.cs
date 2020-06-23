@@ -76,7 +76,7 @@ namespace IntelliCenterGateway
         /// </returns>
         public bool IsConnected
         {
-            get { return _tcpClient == null || _tcpClient.Connected; }
+            get { return _tcpClient != null && _tcpClient.Connected; }
         }
 
         public async Task Send(string message)

@@ -1,0 +1,131 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Test page</title>
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.2.1/themes/default/style.min.css" />
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
+</head>
+<body>
+    <h1>Test page</h1>
+    <div id="jstree_demo_div"></div>
+    <p id="output"></p>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.2.1/jstree.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/aspnet-signalr/1.1.4/signalr.min.js"></script>
+
+    <script>
+        var objs = [];
+        var tree = { "plugins": ["unique", "contextmenu"], contextmenu: { items: customMenu }, "core": { "data": [] } };
+        var icons = {
+            "BODY": "fa fa-square", "CHEM": "fa fa-flask", "CIRCUIT": "fa fa-toggle-on", "HEATER": "fa fa-fire", "MODULE": "fa fa-microchip",
+            "PANEL": "fa fa-sitemap", "PUMP": "fa fa-cog", "SENSE": "fa fa-thermometer", "UNKNOWN": "fa fa-question-circle"
+        };
+        var connection = new signalR.HubConnectionBuilder().withUrl('https://localhost:44318/stream').build();
+
+        connection.start().then(() => {
+            connection.stream('Feed').subscribe({
+                next: (data) => {
+                    if (data.substring(0, 1) === '{')
+                        processMsg(JSON.parse(data));
+                    else
+                        console.log(data);
+                },
+                error: (err) => console.error(err),
+                complete: () => { }
+            });
+
+            var cmd = { "command": "GetQuery", "queryName": "GetHardwareDefinition", "arguments": "", "messageID": uuidv4() };
+            connection.invoke('Request', JSON.stringify(cmd));
+        }).catch((err) => console.error(err));
+
+        function uuidv4() {
+            return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+                var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+                return v.toString(16);
+            });
+        }
+
+        function processMsg(msg) {
+            if (msg.command === 'SendQuery' && msg.queryName === 'GetHardwareDefinition') {
+                GetObjects(msg.answer[0], '#');
+                $('#jstree_demo_div').jstree(tree).on("changed.jstree", function (e, data) {
+                    console.log(data.node.id);
+                });
+            }
+            else if (msg.command === 'NotifyList' || msg.command === 'SetParamList')
+                console.log(msg);
+            else
+                $("#output").append(JSON.stringify(msg) + '<br />');
+        }
+
+        function GetObjects(obj, parent) {
+            //PMP01 is included twice for some reason
+            if (!objs.includes(obj.objnam)) {
+                objs.push(obj.objnam);
+                tree.core.data.push({
+                    "id": obj.objnam, "parent": parent, "text": obj.params.SNAME || obj.objnam,
+                    "icon": icons[obj.params.OBJTYP || 'UNKNOWN'], "state": { "opened": true }, "data": obj.params
+                });
+
+                (obj.params.CIRCUITS || []).forEach(function (entry) {
+                    tree.core.data.push({
+                        "id": entry.objnam, "parent": obj.objnam, "text": entry.params.SNAME,
+                        "icon": icons[entry.params.OBJTYP || 'UNKNOWN'], "state": { "opened": true }, "data": entry.params
+                    });
+                });
+
+                (obj.params.OBJLIST || []).forEach(function (entry) {
+                    GetObjects(entry, obj.objnam);
+                });
+            }
+        }
+
+        function customMenu(node) {
+            var items = {
+                subKey: {
+                    label: "Subscribe",
+                    submenu: []
+                },
+                turnOn: {
+                    label: "Turn On",
+                    _disabled: true,
+                    action: function () { setParam(node.id, 'ON'); }
+                },
+                turnOff: {
+                    label: "Turn Off",
+                    _disabled: true,
+                    action: function () { setParam(node.id, 'OFF'); }
+                }
+            };
+
+            if (node.children.length === 0) {
+                Object.keys(node.data).forEach(function (entry) {
+                    items.subKey.submenu.push({ label: entry, action: function () { reqParam(node.id, entry); } });
+                });
+            } else
+                delete items.subKey;
+
+            if (node.data.OBJTYP !== 'CIRCUIT') {
+                delete items.turnOn;
+                delete items.turnOff;
+            }
+
+            return items;
+        }
+
+        function reqParam(objname, key) {
+            var cmd = { "command": "RequestParamList", "objectList": [{ "objnam": objname, "keys": [key] }], "messageID": uuidv4() };
+            console.log(cmd);
+            connection.invoke('Request', JSON.stringify(cmd));
+        }
+
+        function setParam(objname, state) {
+            var cmd = { "command": "SetParamList", "objectList": [{ "objnam": objname, "params": { "STATUS": state } }], "messageID": uuidv4() };
+            console.log(cmd);
+            connection.invoke('Request', JSON.stringify(cmd));
+        }
+    </script>
+</body>
+</html>

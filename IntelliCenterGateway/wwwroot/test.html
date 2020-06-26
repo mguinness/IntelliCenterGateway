@@ -86,6 +86,10 @@
                         "id": entry.objnam, "parent": obj.objnam, "text": entry.params.SNAME,
                         "icon": icons[entry.params.OBJTYP || 'UNKNOWN'], "state": { "opened": true }, "data": entry.params
                     });
+
+                    (entry.params.OBJLIST || []).forEach(function (item) {
+                        GetObjects(item, entry.objnam);
+                    });
                 });
 
                 (obj.params.OBJLIST || []).forEach(function (entry) {

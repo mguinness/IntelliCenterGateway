@@ -26,7 +26,6 @@ docker build . -t intellicentergateway
 docker run -it -p 8000:80 -e "Configuration__TelnetHost=192.168.1.100" intellicentergateway
 ```
 
-
 ## Operation
 Once the website is running the home page should be shown.  Javascript on the page should connect to SignalR on the server and send a command to request the hardware definition of your IntelliCenter.
 
@@ -37,6 +36,11 @@ The resulting message is processed and a filtered set of objects are displayed o
 A posting at [Trouble Free Pool](https://www.troublefreepool.com/threads/intellicenter-home-automation-integration-and-control.186856/post-1658889) details other example commands.  You can also discover commands by going to the https://intellicenter.com/ website and inspecting the messages that are shown in the debugging console, example below.
 
 ![Screenshot](Images/Msgs.png)
+
+## Playground
+A [test webpage](https://github.com/mguinness/IntelliCenterGateway/blob/master/IntelliCenterGateway/wwwroot/test.html) using jQuery and jsTree to display all the objects returned from the IntelliCenter.  This demonstrates issuing commands like getting object state, subscribing to parameters and turning circuits on and off.  Using this as a reference point it makes it possible to create a customized dashboard with any Javascript framework.
+
+![Screenshot](Images/Play.png)
 
 ## Credits
 

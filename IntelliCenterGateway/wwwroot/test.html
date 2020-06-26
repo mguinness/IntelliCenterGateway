@@ -17,7 +17,7 @@
 
     <script>
         var objs = [];
-        var tree = { "plugins": ["unique", "contextmenu"], contextmenu: { items: customMenu }, "core": { "data": [] } };
+        var tree = { "plugins": ["unique", "contextmenu"], "contextmenu": { "items": customMenu }, "core": { "check_callback": true, "data": [] } };
         var icons = {
             "BODY": "fa fa-square", "CHEM": "fa fa-flask", "CIRCUIT": "fa fa-toggle-on", "HEATER": "fa fa-fire", "MODULE": "fa fa-microchip",
             "PANEL": "fa fa-sitemap", "PUMP": "fa fa-cog", "SENSE": "fa fa-thermometer", "UNKNOWN": "fa fa-question-circle"
@@ -51,11 +51,26 @@
             if (msg.command === 'SendQuery' && msg.queryName === 'GetHardwareDefinition') {
                 GetObjects(msg.answer[0], '#');
                 $('#jstree_demo_div').jstree(tree).on("changed.jstree", function (e, data) {
-                    console.log(data.node.id);
+                    console.log(data.node.id, data.node.data);
                 });
             }
-            else if (msg.command === 'NotifyList' || msg.command === 'SetParamList')
+            else if (msg.command === 'SetParamList')
                 console.log(msg);
+            else if (msg.command === 'NotifyList') {
+                msg.objectList.forEach(function (obj) {
+                    var node = $('#jstree_demo_div').jstree('get_node', obj.objnam);
+                    var title = node.data.SNAME || obj.objnam;
+
+                    for (var key in obj.params)
+                        node.data[key] = obj.params[key];
+
+                    if (node.data.STATUS)
+                        $('#jstree_demo_div').jstree('rename_node', obj.objnam, title + ': <b>' + node.data.STATUS + '</b>');
+                    else if (node.data.PROBE)
+                        $('#jstree_demo_div').jstree('rename_node', obj.objnam, title + ': <b>' + node.data.PROBE + '°</b>');
+                });
+
+            }
             else
                 $("#output").append(JSON.stringify(msg) + '<br />');
         }
@@ -64,12 +79,9 @@
             //PMP01 is included twice for some reason
             if (!objs.includes(obj.objnam)) {
                 objs.push(obj.objnam);
-                tree.core.data.push({
-                    "id": obj.objnam, "parent": parent, "text": obj.params.SNAME || obj.objnam,
-                    "icon": icons[obj.params.OBJTYP || 'UNKNOWN'], "state": { "opened": true }, "data": obj.params
-                });
 
                 (obj.params.CIRCUITS || []).forEach(function (entry) {
+                    objs.push(entry.objnam);
                     tree.core.data.push({
                         "id": entry.objnam, "parent": obj.objnam, "text": entry.params.SNAME,
                         "icon": icons[entry.params.OBJTYP || 'UNKNOWN'], "state": { "opened": true }, "data": entry.params
@@ -79,30 +91,43 @@
                 (obj.params.OBJLIST || []).forEach(function (entry) {
                     GetObjects(entry, obj.objnam);
                 });
+
+                delete obj.params.OBJLIST;
+                delete obj.params.CIRCUITS;
+                tree.core.data.push({
+                    "id": obj.objnam, "parent": parent, "text": obj.params.SNAME || obj.objnam,
+                    "icon": icons[obj.params.OBJTYP || 'UNKNOWN'], "state": { "opened": true, "disabled": obj.objnam.substring(0, 1) === 'X' }, "data": obj.params
+                });
             }
         }
 
         function customMenu(node) {
+            if (node.state.disabled)
+                return;
+
             var items = {
+                status: {
+                    label: "Get State",
+                    action: function () { reqParam(node.id, node.data.OBJTYP === 'SENSE' ? 'PROBE' : 'STATUS'); }
+                },
                 subKey: {
                     label: "Subscribe",
                     submenu: []
                 },
                 turnOn: {
                     label: "Turn On",
-                    _disabled: true,
-                    action: function () { setParam(node.id, 'ON'); }
+                    action: function () { setParam(node.id, 'STATUS', 'ON'); }
                 },
                 turnOff: {
                     label: "Turn Off",
-                    _disabled: true,
-                    action: function () { setParam(node.id, 'OFF'); }
+                    action: function () { setParam(node.id, 'STATUS', 'OFF'); }
                 }
             };
 
             if (node.children.length === 0) {
                 Object.keys(node.data).forEach(function (entry) {
-                    items.subKey.submenu.push({ label: entry, action: function () { reqParam(node.id, entry); } });
+                    if (!['OBJTYP', 'SUBTYP', 'HNAME', 'SNAME', 'PARENT', 'BODY'].includes(entry))
+                        items.subKey.submenu.push({ label: entry, action: function () { reqParam(node.id, entry); } });
                 });
             } else
                 delete items.subKey;
@@ -111,6 +136,9 @@
                 delete items.turnOn;
                 delete items.turnOff;
             }
+
+            if (['PANEL', 'MODULE', 'UNKNOWN'].includes(node.data.OBJTYP || 'UNKNOWN'))
+                delete items.status;
 
             return items;
         }
@@ -121,8 +149,8 @@
             connection.invoke('Request', JSON.stringify(cmd));
         }
 
-        function setParam(objname, state) {
-            var cmd = { "command": "SetParamList", "objectList": [{ "objnam": objname, "params": { "STATUS": state } }], "messageID": uuidv4() };
+        function setParam(objname, key, value) {
+            var cmd = { "command": "SetParamList", "objectList": [{ "objnam": objname, "params": { [key]: value } }], "messageID": uuidv4() };
             console.log(cmd);
             connection.invoke('Request', JSON.stringify(cmd));
         }

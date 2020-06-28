@@ -8,7 +8,7 @@ The website uses a [hosted service](https://docs.microsoft.com/en-us/aspnet/core
 
 This can then be used by any client using Javascript in the browser to issue commands and process responses received back from the IntelliCenter.
 
-Ideally the website should be running continously and a good option for this is to use a  [Raspberry PI](https://www.raspberrypi.org/products/) that is a low power device and has WiFi connectivity.
+Ideally the website should be running continously and a good option for this is to use a  [Raspberry Pi](https://www.raspberrypi.org/products/) that is a low power device and has WiFi connectivity.
 
 ## Setup
 Change the appsettings.json file to include the IP address of the IntelliCenter on your local network.
@@ -20,7 +20,7 @@ Change the appsettings.json file to include the IP address of the IntelliCenter 
 ```
 
 ## Docker
-Clone repo and run
+Clone repo and run.
 ```
 docker build . -t intellicentergateway
 docker run -it -p 8000:80 -e "Configuration__TelnetHost=192.168.1.100" intellicentergateway

@@ -4,14 +4,21 @@
     ViewData["Title"] = "Home page";
 }
 
+<style>
+    .table th {
+        border-top: none;
+    }
+</style>
+
 <h1>@ViewData["Title"]</h1>
 
-<div class="row" id="printcard"></div>
+<div class="card-columns" id="printcard"></div>
 
 <p id="output"></p>
 
 @section Scripts {
     <script>
+        var configId = uuidv4();
         var connection = new signalR.HubConnectionBuilder().withUrl('/stream').build();
 
         connection.start().then(() => {
@@ -26,7 +33,7 @@
                 complete: () => { }
             });
 
-            var cmd = { "command": "GetQuery", "queryName": "GetHardwareDefinition", "arguments": "", "messageID": uuidv4() };
+            var cmd = { "command": "GetQuery", "queryName": "GetHardwareDefinition", "arguments": "", "messageID": configId };
 
             connection.invoke('Request', JSON.stringify(cmd));
         }).catch((err) => console.error(err));

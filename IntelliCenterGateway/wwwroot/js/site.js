@@ -48,6 +48,8 @@ function processMsg(msg) {
                     $('#' + obj.objnam).find('td:eq(1)').text(obj.params[key]);
                 else if (key === 'PROBE')
                     $('#' + obj.objnam).find('td:eq(1)').text(obj.params[key] + '°');
+                else if (key === 'HTMODE')
+                    $('#' + obj.objnam).find('td:eq(1)').text(obj.params[key]);
             }
         });
     }
@@ -91,7 +93,7 @@ function createCards(data) {
 
     var heatersCard = '<div class="card m-1">'
         + '<h5 class="card-header bg-info">Heaters<small class="float-sm-right">'
-        + '<a href="#!" class="btn btn-link p-0" onclick="reqParam(this, undefined, [\'STATUS\'])">Subscribe</a></small></h5>'
+        + '<a href="#!" class="btn btn-link p-0" onclick="reqParam(this, undefined, [\'HTMODE\'])">Subscribe</a></small></h5>'
         + '<div class="card-body">'
         + HeatersTable(heaters).prop('outerHTML')
         + '</div>'

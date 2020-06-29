@@ -13,8 +13,8 @@ function reqParam(btn, objnames, keys) {
     $(btn).addClass('disabled');
 
     if (objnames === undefined) {
-        var card = window.event.target.closest('div');
-        objnames = $(card).find('tbody > tr').map(function () {
+        var card = $(event.target).closest('div');
+        objnames = card.find('tbody > tr').map(function () {
             return $(this).attr('id');
         });
     }
@@ -49,7 +49,7 @@ function processMsg(msg) {
                 else if (key === 'PROBE')
                     $('#' + obj.objnam).find('td:eq(1)').text(obj.params[key] + '°');
                 else if (key === 'HTMODE')
-                    $('#' + obj.objnam).find('td:eq(1)').text(obj.params[key]);
+                    $('#' + obj.objnam).find('td:eq(1)').text(obj.params[key] === '0' ? 'OFF' : 'ON');
             }
         });
     }

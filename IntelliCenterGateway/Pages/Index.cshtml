@@ -19,7 +19,7 @@
 @section Scripts {
     <script>
         var configId = uuidv4();
-        var connection = new signalR.HubConnectionBuilder().withUrl('/stream').build();
+        var connection = new signalR.HubConnectionBuilder().withUrl('/stream').withAutomaticReconnect().build();
 
         connection.start().then(() => {
             connection.stream('Feed').subscribe({

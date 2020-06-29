@@ -13,7 +13,7 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.2.1/jstree.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/aspnet-signalr/1.1.4/signalr.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/3.1.3/signalr.min.js"></script>
 
     <script>
         var objs = [];
@@ -22,7 +22,8 @@
             "BODY": "fa fa-square", "CHEM": "fa fa-flask", "CIRCUIT": "fa fa-toggle-on", "HEATER": "fa fa-fire", "MODULE": "fa fa-microchip",
             "PANEL": "fa fa-sitemap", "PUMP": "fa fa-cog", "SENSE": "fa fa-thermometer", "UNKNOWN": "fa fa-question-circle"
         };
-        var connection = new signalR.HubConnectionBuilder().withUrl('https://localhost:44318/stream').build();
+        var configId = uuidv4();
+        var connection = new signalR.HubConnectionBuilder().withUrl('/stream').build();
 
         connection.start().then(() => {
             connection.stream('Feed').subscribe({
@@ -36,7 +37,7 @@
                 complete: () => { }
             });
 
-            var cmd = { "command": "GetQuery", "queryName": "GetHardwareDefinition", "arguments": "", "messageID": uuidv4() };
+            var cmd = { "command": "GetQuery", "queryName": "GetHardwareDefinition", "arguments": "", "messageID": configId };
             connection.invoke('Request', JSON.stringify(cmd));
         }).catch((err) => console.error(err));
 
@@ -49,10 +50,12 @@
 
         function processMsg(msg) {
             if (msg.command === 'SendQuery' && msg.queryName === 'GetHardwareDefinition') {
-                GetObjects(msg.answer[0], '#');
-                $('#jstree_demo_div').jstree(tree).on("changed.jstree", function (e, data) {
-                    console.log(data.node.id, data.node.data);
-                });
+                if (msg.messageID === configId) {
+                    GetObjects(msg.answer[0], '#');
+                    $('#jstree_demo_div').jstree(tree).on("changed.jstree", function (e, data) {
+                        console.log(data.node.id, data.node.data);
+                    });
+                }
             }
             else if (msg.command === 'SetParamList')
                 console.log(msg);

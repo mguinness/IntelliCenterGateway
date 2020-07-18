@@ -24,13 +24,13 @@ namespace IntelliCenterGateway
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            _telnetClient = new TelnetClient(_telnetHost, _telnetPort, TimeSpan.FromSeconds(1), stoppingToken);
+            _telnetClient = new TelnetClient(_telnetHost, _telnetPort, TimeSpan.FromMilliseconds(50), stoppingToken);
             _telnetClient.MessageReceived += new EventHandler<string>((sender, e) => _subject.OnNext(e));
             _telnetClient.ConnectionClosed += new EventHandler((sender, e) => _subject.OnNext("Connection closed"));
 
             await _telnetClient.Connect();
 
-            while (!stoppingToken.IsCancellationRequested) {                
+            while (!stoppingToken.IsCancellationRequested) {
                 await _telnetClient.Send("ping"); //keepalive
                 await Task.Delay(TimeSpan.FromMinutes(1), stoppingToken);
             }

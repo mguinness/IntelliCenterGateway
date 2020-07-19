@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
@@ -10,6 +11,7 @@ using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.IdentityModel.Tokens;
 
 namespace IntelliCenterGateway
 {
@@ -29,7 +31,20 @@ namespace IntelliCenterGateway
                 options.Conventions.AuthorizePage("/Index");
             }).AddRazorRuntimeCompilation();
             services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-                .AddCookie();
+                .AddCookie()
+                .AddJwtBearer(options =>
+                {
+                    options.Audience = Configuration["Token:Audience"];
+                    options.ClaimsIssuer = Configuration["Token:Issuer"];
+                    options.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        ValidateIssuerSigningKey = true,
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["Token:SigningKey"])),
+                        ValidateIssuer = false,
+                        ValidateAudience = true
+                    };
+                });
+
             services.AddSignalR();
             services.AddSingleton<TelnetBackgroundService>();
             services.AddHostedService<BackgroundServiceStarter<TelnetBackgroundService>>();

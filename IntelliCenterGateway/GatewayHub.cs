@@ -7,10 +7,12 @@ using System.Diagnostics;
 using System.Threading;
 using System.Threading.Channels;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace IntelliCenterGateway
 {
-    [Authorize]
+    [Authorize(AuthenticationSchemes = CookieAuthenticationDefaults.AuthenticationScheme + "," + JwtBearerDefaults.AuthenticationScheme)]
     public class GatewayHub : Hub
     {
         private readonly TelnetBackgroundService _telnetService;

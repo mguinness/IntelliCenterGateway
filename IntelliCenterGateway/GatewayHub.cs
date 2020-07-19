@@ -6,9 +6,11 @@ using Microsoft.AspNetCore.SignalR;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Channels;
+using Microsoft.AspNetCore.Authorization;
 
 namespace IntelliCenterGateway
 {
+    [Authorize]
     public class GatewayHub : Hub
     {
         private readonly TelnetBackgroundService _telnetService;

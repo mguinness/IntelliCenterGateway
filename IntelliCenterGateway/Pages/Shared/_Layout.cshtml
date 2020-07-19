@@ -16,12 +16,28 @@
                         aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex flex-sm-row-reverse">
-                    <ul class="navbar-nav flex-grow-1">
+                <div class="navbar-collapse collapse d-sm-inline-flex">
+                    <ul class="navbar-nav">
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-page="/Index">Home</a>
                         </li>
                     </ul>
+                    @if (Context.User.Identity.IsAuthenticated)
+                    {
+                        <form asp-controller="Account" asp-action="Logout" class="ml-auto">
+                            <ul class="navbar-nav">
+                                <li class="nav-item">
+                                    <button type="submit" class="btn btn-link">Sign out</button>
+                                </li>
+                            </ul>
+                        </form>
+                    }
+                    else
+                    {
+                        <ul class="navbar-nav ml-auto">
+                            <li class="nav-item"><a asp-page="/Account/Login">Sign in</a></li>
+                        </ul>
+                    }
                 </div>
             </div>
         </nav>

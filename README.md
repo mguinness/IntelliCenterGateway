@@ -50,4 +50,7 @@ https://github.com/Spksh/TentacleSoftware.Telnet/
 A SignalR ASP.NET Core server broadcast example
 https://github.com/JakeDixon/server-broadcast-signalr-dotnetcore/
 
+ASP.NET Core 3.1 Razor Pages cookie sample
+https://github.com/dotnet/AspNetCore.Docs/tree/master/aspnetcore/security/authentication/cookie/samples/3.x/CookieSample
+
 THIS SOFTWARE IS PROVIDED AS IS, NO WARRANTY, NO LIABILITY. NEITHER AUTHOR NOR ANYONE ELSE ARE RESPONSIBLE FOR ANY DAMAGE THAT COULD BE CAUSED BY THIS SOFTWARE. USE AT YOUR OWN RISK.

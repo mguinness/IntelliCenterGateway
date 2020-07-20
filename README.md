@@ -19,6 +19,25 @@ Change the appsettings.json file to include the IP address of the IntelliCenter 
 }
 ```
 
+Website authentication has been included to allow secure remote access.  A section called `Users` contains usernames and passwords which will be validated during sign in.  It is essential that you change the default password (second string in green) to prevent unauthorized access.
+
+```JSON
+"Users": {
+    "user": "user"
+}
+```
+
+For third party applications bearer tokens are available and configured with `Token` section.  It is essential that you change the default signing key (must be 16 or more characters) that is used for encryption.
+
+```JSON
+"Token": {
+    "Issuer": "localhost",
+    "Audience": "localhost",
+    "ValidFor": 3600,
+    "SigningKey": "Supercalifragilisticexpialidocious"
+}
+```
+
 ## Docker
 Clone repo and run.
 ```
@@ -27,7 +46,7 @@ docker run -it -p 8000:80 -e "Configuration__TelnetHost=192.168.1.100" intellice
 ```
 
 ## Operation
-Once the website is running the home page should be shown.  Javascript on the page should connect to SignalR on the server and send a command to request the hardware definition of your IntelliCenter.
+Once the website is running the home page should be shown after signing in.  Javascript on the page should connect to SignalR on the server and send a command to request the hardware definition of your IntelliCenter.
 
 The resulting message is processed and a filtered set of objects are displayed on the page.  For circuits they can then be turned on/off and for probes you can subscribe to temperature updates.
 

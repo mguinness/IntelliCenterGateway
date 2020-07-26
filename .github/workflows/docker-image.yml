@@ -2,7 +2,7 @@ name: Docker Image CI
 
 on:
   release:
-    types: [ published, created, edited ]
+    types: [ published ]
 
 jobs:
 
@@ -21,3 +21,5 @@ jobs:
       run: docker build . --file Dockerfile --tag mguinness/intellicentergateway:${{steps.vars.outputs.tag}} --tag mguinness/intellicentergateway:latest
     - name: Push the tagged Docker image
       run: docker push mguinness/intellicentergateway:${{steps.vars.outputs.tag}}
+    - name: Push the latest Docker image
+      run: docker push mguinness/intellicentergateway::latest

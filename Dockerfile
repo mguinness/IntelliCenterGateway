@@ -1,29 +1,18 @@
 # https://hub.docker.com/_/microsoft-dotnet-core
 FROM mcr.microsoft.com/dotnet/core/sdk:3.1 AS build
 WORKDIR /source
+EXPOSE 80
 
 # copy csproj and restore as distinct layers
-COPY *.sln .
-COPY IntelliCenterGateway/*.csproj ./IntelliCenterGateway/
-RUN dotnet restore -r linux-musl-x64
+COPY ["IntelliCenterGateway/IntelliCenterGateway.csproj", "IntelliCenterGateway/"]
+RUN dotnet restore "IntelliCenterGateway/IntelliCenterGateway.csproj" -r linux-arm
 
-# copy everything else and build app
-COPY IntelliCenterGateway/. ./IntelliCenterGateway/
-WORKDIR /source/IntelliCenterGateway
-RUN dotnet publish -c release -o /app -r linux-musl-x64 --self-contained false --no-restore
+# copy and publish app and libraries
+COPY . .
+RUN dotnet publish -c release -o /app -r linux-arm --self-contained false --no-restore
 
 # final stage/image
-FROM mcr.microsoft.com/dotnet/core/aspnet:3.1-alpine
+FROM mcr.microsoft.com/dotnet/core/aspnet:3.1-buster-slim-arm32v7
 WORKDIR /app
-COPY --from=build /app ./
-
-# See: https://github.com/dotnet/announcements/issues/20
-# Uncomment to enable globalization APIs (or delete)
-#ENV DOTNET_SYSTEM_GLOBALIZATION_INVARIANT false
-#RUN apk add --no-cache icu-libs
-#ENV LC_ALL en_US.UTF-8
-#ENV LANG en_US.UTF-8
-
-EXPOSE 80/tcp
-
-ENTRYPOINT ["./IntelliCenterGateway"]
+COPY --from=build /app .
+ENTRYPOINT ["dotnet", "IntelliCenterGateway.dll"]

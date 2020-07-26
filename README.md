@@ -42,9 +42,28 @@ For third party applications bearer tokens are available and configured with `To
 Clone repo and run.
 ```
 docker build . -t intellicentergateway
-docker run -it -p 8000:80 -e "Configuration__TelnetHost=192.168.1.100" intellicentergateway
+docker run -it -p 8000:80 -e "Configuration__TelnetHost=192.168.1.100" -e "Users__john=Change-Me-1234" -e "Token__SigningKey=Change-Me-To-Something" intellicentergateway
 ```
 
+## Docker-Compose (docker-compose.yml)
+```
+version: 3.7
+services:
+  pool:
+    container_name: pool
+    image: gibby/intellicentergateway:latest
+    restart: always
+    environment:
+      Configuration__TelnetHost: 192.168.1.100
+      Users__john: Change-Me-1234
+      Token__Issuer: localhost
+      Token__Audience: localhost
+      Token__ValidFor: 3600
+      Token__SigningKey: Change-Me-To-Something
+      Logging__LogLevel__Default: Information
+      Logging__LogLevel__Microsoft: Warning
+      Logging__LogLevel__Microsoft.Hosting.Lifetime: Information
+```
 ## Operation
 Once the website is running the home page should be shown after signing in.  Javascript on the page should connect to SignalR on the server and send a command to request the hardware definition of your IntelliCenter.
 

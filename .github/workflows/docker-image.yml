@@ -15,11 +15,19 @@ jobs:
     - name: Login to DockerHub Registry
       run: echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
     - name: Get the version
-      id: vars      
+      id: vars
       run: echo ::set-output name=tag::$(echo ${GITHUB_REF:10})
-    - name: Build the tagged Docker image
-      run: docker build . --file Dockerfile --tag mguinness/intellicentergateway:${{steps.vars.outputs.tag}} --tag mguinness/intellicentergateway:latest
-    - name: Push the tagged Docker image
-      run: docker push mguinness/intellicentergateway:${{steps.vars.outputs.tag}}
-    - name: Push the latest Docker image
-      run: docker push mguinness/intellicentergateway::latest
+
+    - name: Build the tagged Docker image for arm32
+      run: docker build . --file Dockerfile.arm32 --tag mguinness/intellicentergateway:arm32-${{steps.vars.outputs.tag}} --tag mguinness/intellicentergateway:arm32
+    - name: Push the tagged Docker image for arm32
+      run: docker push mguinness/intellicentergateway:arm32-${{steps.vars.outputs.tag}}
+    - name: Push the latest Docker image for arm32
+      run: docker push mguinness/intellicentergateway:arm32
+
+    - name: Build the tagged Docker image for alpine-x64
+      run: docker build . --file Dockerfile.x64 --tag mguinness/intellicentergateway:x64-${{steps.vars.outputs.tag}} --tag mguinness/intellicentergateway:x64
+    - name: Push the tagged Docker image for alpine-x64
+      run: docker push mguinness/intellicentergateway:x64-${{steps.vars.outputs.tag}}
+    - name: Push the latest Docker image for alpine-x64
+      run: docker push mguinness/intellicentergateway:x64

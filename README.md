@@ -39,10 +39,22 @@ For third party applications bearer tokens are available and configured with `To
 ```
 
 ## Docker
-Clone repo and run.
+* arm32
 ```
-docker build . -t intellicentergateway
-docker run -it -p 8000:80 -e "Configuration__TelnetHost=192.168.1.100" intellicentergateway
+docker run -it -p 8000:80 \
+  -e "Configuration__TelnetHost=192.168.1.100" \
+  -e "Users__john=Change-Me-1234" \
+  -e "Token__SigningKey=Change-Me-To-Something" \
+  mguinness/intellicentergateway:arm32
+```
+
+* x64
+```
+docker run -it -p 8000:80 \
+  -e "Configuration__TelnetHost=192.168.1.100" \
+  -e "Users__john=Change-Me-1234" \
+  -e "Token__SigningKey=Change-Me-To-Something" \
+  mguinness/intellicentergateway:x64
 ```
 
 ## Operation

@@ -1,0 +1,27 @@
+name: Docker Image Latest
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Login to DockerHub Registry
+      run: echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+
+    - name: Build the latest Docker image for arm32
+      run: docker build . --file Dockerfile.arm32 --tag mguinness/intellicentergateway:arm32
+    - name: Push the latest Docker image for arm32
+      run: docker push mguinness/intellicentergateway:arm32
+
+    - name: Build the latest Docker image for alpine-x64
+      run: docker build . --file Dockerfile.x64 --tag mguinness/intellicentergateway:x64
+    - name: Push the latest Docker image for alpine-x64
+      run: docker push mguinness/intellicentergateway:x64

@@ -1,4 +1,4 @@
-name: Docker Image CI
+name: Docker Image CI Release
 
 on:
   release:
@@ -19,15 +19,11 @@ jobs:
       run: echo ::set-output name=tag::$(echo ${GITHUB_REF:10})
 
     - name: Build the tagged Docker image for arm32
-      run: docker build . --file Dockerfile.arm32 --tag mguinness/intellicentergateway:arm32-${{steps.vars.outputs.tag}} --tag mguinness/intellicentergateway:arm32
+      run: docker build . --file Dockerfile.arm32 --tag mguinness/intellicentergateway:arm32-${{steps.vars.outputs.tag}}
     - name: Push the tagged Docker image for arm32
       run: docker push mguinness/intellicentergateway:arm32-${{steps.vars.outputs.tag}}
-    - name: Push the latest Docker image for arm32
-      run: docker push mguinness/intellicentergateway:arm32
 
     - name: Build the tagged Docker image for alpine-x64
-      run: docker build . --file Dockerfile.x64 --tag mguinness/intellicentergateway:x64-${{steps.vars.outputs.tag}} --tag mguinness/intellicentergateway:x64
+      run: docker build . --file Dockerfile.x64 --tag mguinness/intellicentergateway:x64-${{steps.vars.outputs.tag}}
     - name: Push the tagged Docker image for alpine-x64
       run: docker push mguinness/intellicentergateway:x64-${{steps.vars.outputs.tag}}
-    - name: Push the latest Docker image for alpine-x64
-      run: docker push mguinness/intellicentergateway:x64

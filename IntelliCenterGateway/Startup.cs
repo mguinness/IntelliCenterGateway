@@ -1,12 +1,15 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -30,6 +33,7 @@ namespace IntelliCenterGateway
             services.AddRazorPages(options => {
                 options.Conventions.AuthorizePage("/Index");
             }).AddRazorRuntimeCompilation();
+
             services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
                 .AddCookie()
                 .AddJwtBearer(options =>
@@ -45,7 +49,23 @@ namespace IntelliCenterGateway
                     };
                 });
 
+            services.AddAuthorization(options =>
+            {
+                if (Configuration.GetSection("Configuration:PrivateCIDR").Exists())
+                {
+                    var cidr = Configuration["Configuration:PrivateCIDR"].Split('/');
+                    var addr = IPAddress.Parse(cidr[0]);
+                    var mask = Int32.Parse(cidr[1]);
+
+                    options.DefaultPolicy = new AuthorizationPolicyBuilder()
+                        .AddRequirements(new IPRequirement(new IPNetwork(addr, mask)))
+                        .Build();
+                }
+            });
+
             services.AddSignalR();
+            services.AddHttpContextAccessor();
+            services.AddSingleton<IAuthorizationHandler, IPAddressHandler>();
             services.AddSingleton<TelnetBackgroundService>();
             services.AddHostedService<BackgroundServiceStarter<TelnetBackgroundService>>();
         }

@@ -39,11 +39,7 @@ For third party applications bearer tokens are available and configured with `To
 ```
 
 ## Docker
-Clone repo and run.
-```
-docker build . -t intellicentergateway
-docker run -it -p 8000:80 -e "Configuration__TelnetHost=192.168.1.100" intellicentergateway
-```
+Please refer to the [wiki](https://github.com/mguinness/IntelliCenterGateway/wiki) for further details.
 
 ## Operation
 Once the website is running the home page should be shown after signing in.  Javascript on the page should connect to SignalR on the server and send a command to request the hardware definition of your IntelliCenter.

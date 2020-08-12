@@ -43,25 +43,25 @@ namespace IntelliCenterGateway
                     options.TokenValidationParameters = new TokenValidationParameters
                     {
                         ValidateIssuerSigningKey = true,
-                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["Token:SigningKey"])),
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["Token:SigningKey"] + Environment.MachineName)),
                         ValidateIssuer = false,
                         ValidateAudience = true
                     };
                 });
 
             services.AddAuthorization(options =>
-            {
-                if (Configuration.GetSection("Configuration:PrivateCIDR").Exists())
                 {
-                    var cidr = Configuration["Configuration:PrivateCIDR"].Split('/');
-                    var addr = IPAddress.Parse(cidr[0]);
-                    var mask = Int32.Parse(cidr[1]);
+                    if (Configuration.GetSection("Configuration:PrivateCIDR").Exists())
+                    {
+                        var cidr = Configuration["Configuration:PrivateCIDR"].Split('/');
+                        var addr = IPAddress.Parse(cidr[0]);
+                        var mask = Int32.Parse(cidr[1]);
 
-                    options.DefaultPolicy = new AuthorizationPolicyBuilder()
-                        .AddRequirements(new IPRequirement(new IPNetwork(addr, mask)))
-                        .Build();
-                }
-            });
+                        options.DefaultPolicy = new AuthorizationPolicyBuilder()
+                            .AddRequirements(new IPRequirement(new IPNetwork(addr, mask)))
+                            .Build();
+                    }
+                });
 
             services.AddSignalR();
             services.AddHttpContextAccessor();

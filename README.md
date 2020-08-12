@@ -27,7 +27,7 @@ Website authentication has been included to allow secure remote access.  A secti
 }
 ```
 
-For third party applications bearer tokens are available and configured with `Token` section.  It is essential that you change the default signing key (must be 16 or more characters) that is used for encryption.
+For third party applications bearer tokens are available and configured with `Token` section.  It is recommended that you change the default signing key (must be 16 or more characters) that is used for encryption.
 
 ```JSON
 "Token": {

@@ -50,7 +50,7 @@ namespace IntelliCenterGateway.Controllers
                     new ClaimsIdentity(claims, "jwt"),
                     notBefore: DateTime.UtcNow,
                     expires: DateTime.UtcNow.AddSeconds(_config.GetValue<int>("Token:ValidFor")),
-                    signingCredentials: new SigningCredentials(new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Token:SigningKey"])), SecurityAlgorithms.HmacSha256));
+                    signingCredentials: new SigningCredentials(new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Token:SigningKey"] + Environment.MachineName)), SecurityAlgorithms.HmacSha256));
 
                 return Json(new
                 {

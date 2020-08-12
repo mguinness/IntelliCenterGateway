@@ -5,9 +5,7 @@ on:
     types: [ published ]
 
 jobs:
-
   build:
-
     runs-on: ubuntu-latest
 
     steps:
@@ -22,4 +20,4 @@ jobs:
     - name: Push the tagged Docker image
       run: docker push mguinness/intellicentergateway:${{steps.vars.outputs.tag}}
     - name: Push the latest Docker image
-      run: docker push mguinness/intellicentergateway::latest
+      run: docker push mguinness/intellicentergateway:latest

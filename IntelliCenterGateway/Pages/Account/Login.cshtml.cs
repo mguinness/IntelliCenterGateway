@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using System.Collections.Generic;
 using Microsoft.Extensions.Configuration;
+using System.Linq;
 
 namespace IntelliCenterGateway.Pages.Account
 {
@@ -84,9 +85,9 @@ namespace IntelliCenterGateway.Pages.Account
 
         private string AuthenticateUser(string username, string password)
         {
-            var users = _config.GetSection("Users").Get<Dictionary<string, string>>();
+            var users = _config.GetSection("Users").GetChildren().ToDictionary(x => x.Key, x => x.Value, StringComparer.OrdinalIgnoreCase);
 
-            if (users.ContainsKey(username) && users[username] == password)
+            if (users.ContainsKey(username ?? String.Empty) && users[username] == password)
                 return username;
             else
                 return null;

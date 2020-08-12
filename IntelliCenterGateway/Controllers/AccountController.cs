@@ -9,6 +9,7 @@ using System.Security.Claims;
 using System.Text;
 using Microsoft.Extensions.Configuration;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace IntelliCenterGateway.Controllers
 {
@@ -32,9 +33,9 @@ namespace IntelliCenterGateway.Controllers
         [HttpPost("[controller]/[action]")]
         public IActionResult Token(string username, string password, string grant_type)
         {
-            var users = _config.GetSection("Users").Get<Dictionary<string, string>>();
+            var users = _config.GetSection("Users").GetChildren().ToDictionary(x => x.Key, x => x.Value, StringComparer.OrdinalIgnoreCase);
 
-            if (users.ContainsKey(username) && users[username] == password && grant_type == "password")
+            if (users.ContainsKey(username ?? String.Empty) && users[username] == password && grant_type == "password")
             {
                 var claims = new List<Claim>()
                 {

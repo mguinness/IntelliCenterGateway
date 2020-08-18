@@ -19,11 +19,11 @@ Change the appsettings.json file to include the IP address of the IntelliCenter 
 }
 ```
 
-Website authentication has been included to allow secure remote access.  A section called `Users` contains usernames and passwords which will be validated during sign in.  It is essential that you change the default password (second string in green) to prevent unauthorized access.
+Website authentication has been included to allow secure remote access.  A section called `Users` contains usernames and passwords which will be validated during sign in.  It is essential that you change the default password (the second string) to prevent unauthorized access.
 
 ```JSON
 "Users": {
-    "user": "user"
+    "user": "pa55word"
 }
 ```
 

@@ -36,8 +36,16 @@ namespace IntelliCenterGateway.Controllers
                 if (!IsValid(request))
                     return BadRequest();
 
-                var intent = request.GetProperty("request").GetProperty("intent").GetProperty("name").GetString();
-                string text = await GetTextAsync(intent);
+                string text = null;
+
+                if (request.GetProperty("request").GetProperty("type").ValueEquals("IntentRequest"))
+                {
+                    var intent = request.GetProperty("request").GetProperty("intent").GetProperty("name").GetString();
+                    if (intent == "On" || intent == "Off")
+                        text = await SetStateAsync(intent, request);                        
+                    else
+                        text = await GetTextAsync(intent);
+                }
 
                 if (text == null)
                     return BadRequest();
@@ -80,6 +88,29 @@ namespace IntelliCenterGateway.Controllers
                 return true;
             else
                 return appId.Equals(request.GetProperty("session").GetProperty("application").GetProperty("applicationId").GetString());
+        }
+
+        private async Task<string> SetStateAsync(string intent, JsonElement request)
+        {
+            var confirm = request.GetProperty("request").GetProperty("intent").GetProperty("confirmationStatus").GetString();
+            if (confirm == "DENIED")
+                return String.Empty;
+            else
+            {
+                var circuit = request.GetProperty("request").GetProperty("intent").GetProperty("slots").GetProperty("circuit");
+                if (circuit.GetProperty("resolutions").GetProperty("resolutionsPerAuthority")[0].TryGetProperty("values", out var values))
+                {
+                    var name = values[0].GetProperty("value").GetProperty("name").GetString();
+
+                    var circuits = _config.GetSection("Alexa:Circuits").Get<Dictionary<string, string>>();
+                    if (circuits.ContainsKey(name) && await SetValueAsync(circuits[name], "STATUS", intent.ToUpper()))
+                        return name + " was turned " + intent.ToLower();
+                    else
+                        return null;
+                }
+                else
+                    return "No circuit named " + circuit.GetProperty("value").GetString() + " was found";
+            }
         }
 
         private async Task<string> GetTextAsync(string intent)
@@ -142,6 +173,17 @@ namespace IntelliCenterGateway.Controllers
                 return null;
         }
 
+        private async Task<bool> SetValueAsync(string objname, string key, string value)
+        {
+            await _ws.ConnectAsync(_wsUri.Uri, CancellationToken.None);
+
+            var msg = await RequestAsync(SetParamCommand(objname, key, value));
+
+            await _ws.CloseAsync(WebSocketCloseStatus.NormalClosure, "Closing", CancellationToken.None);
+
+            return JsonDocument.Parse(msg).RootElement.GetProperty("response").ValueEquals("200");
+        }
+
         private async Task<string> GetValueAsync(string objname, string param)
         {
             await _ws.ConnectAsync(_wsUri.Uri, CancellationToken.None);
@@ -177,6 +219,23 @@ namespace IntelliCenterGateway.Controllers
                     new {
                         objnam = objname,
                         keys = new[] { param }
+                    }
+                },
+                messageID = Guid.NewGuid()
+            };
+
+            return JsonSerializer.Serialize(cmd);
+        }
+
+        private string SetParamCommand(string objname, string key, string value)
+        {
+            var cmd = new
+            {
+                command = "SetParamList",
+                objectList = new[] {
+                    new {
+                        objnam = objname,
+                        @params = new Dictionary<string, string> { [key] = value }
                     }
                 },
                 messageID = Guid.NewGuid()

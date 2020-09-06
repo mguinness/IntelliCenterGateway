@@ -26,6 +26,8 @@
                 next: (data) => {
                     if (data.substring(0, 1) === '{')
                         processMsg(JSON.parse(data));
+                    else if (data === 'IntelliCenter unavailable')
+                        $("#output").append('<p class="text-danger">Not connected to IntelliCenter</p>');
                     else
                         console.log(data);
                 },

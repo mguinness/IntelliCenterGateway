@@ -40,7 +40,6 @@ For third party applications bearer tokens are available and configured with `To
 
 ## Docker
 Please refer to the [wiki](https://github.com/mguinness/IntelliCenterGateway/wiki) for full instructions on running this application under Docker, including behind a reverse proxy with SSL and DDNS support.
-
 ## Mobile App
 A mobile application has been developed with Xamarin at [IntelliCenter Control](https://github.com/rmonty/IntelliCenterControl) repo and communicates with the IntelliCenter via Gateway.  It is available on [Google Play](https://play.google.com/store/apps/details?id=com.mcxs.intellicentercontrol) for Android phones.
 
@@ -56,6 +55,16 @@ The resulting message is processed and a filtered set of objects are displayed o
 A posting at [Trouble Free Pool](https://www.troublefreepool.com/threads/intellicenter-home-automation-integration-and-control.186856/post-1658889) details other example commands.  You can also discover commands by going to the https://intellicenter.com/ website and inspecting the messages that are shown in the debugging console, example below.
 
 ![Screenshot](Images/Msgs.png)
+
+## Automation Endpoint
+
+An endpoint accepting HTTP POST requests provides the ability to both get and set object values allowing for external automation.  An example below shows the endpoint being used to get the water temperature from the IntelliCenter.
+
+`curl --user user:pa55word --data "object=SSW11&param=PROBE" http://192.168.1.11:5000/shortcuts`
+
+The endpoint is password protected using basic authentication scheme described in [curl documentation](https://ec.haxx.se/http/http-auth).  The form fields accepted are Object, Param & Value and a JSON result contains the specified object paratmeter value.
+
+A post [IntelliCenter Gateway and Control Apps](https://www.troublefreepool.com/threads/intellicenter-gateway-and-control-apps.214299/page-3#post-1910846) at Trouble Free Pool contains more detailed instructions and also a couple of Siri Shortcuts samples for which the endpoint was developed.
 
 ## Playground
 A [test webpage](https://github.com/mguinness/IntelliCenterGateway/blob/master/IntelliCenterGateway/wwwroot/test.html) using jQuery and jsTree to display all the objects returned from the IntelliCenter.  This demonstrates issuing commands like getting object state, subscribing to parameters and turning circuits on and off.  Using this as a reference point it makes it possible to create a customized dashboard with any Javascript framework.

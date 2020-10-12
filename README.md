@@ -1,4 +1,4 @@
-# IntelliCenter Gateway
+ # IntelliCenter Gateway
 Gateway to Pentair IntelliCenter Control System.
 
 ## Introduction
@@ -62,9 +62,16 @@ An endpoint accepting HTTP POST requests provides the ability to both get and se
 
 `curl --user user:pa55word --data "object=SSW11&param=PROBE" http://192.168.1.11:5000/shortcuts`
 
-The endpoint is password protected using basic authentication scheme described in [curl documentation](https://ec.haxx.se/http/http-auth).  The form fields accepted are Object, Param & Value and a JSON result contains the specified object paratmeter value.
+The endpoint is password protected using basic authentication scheme described in [curl documentation](https://ec.haxx.se/http/http-auth).  The form fields accepted are Object, Param & Value and a JSON result contains the specified object parameter value.
 
 A post [IntelliCenter Gateway and Control Apps](https://www.troublefreepool.com/threads/intellicenter-gateway-and-control-apps.214299/page-3#post-1910846) at Trouble Free Pool contains more detailed instructions and also a couple of Siri Shortcuts samples for which the endpoint was developed.
+
+## Wireless Remote
+
+Using a wireless remote with a superhet receiver connected to a Raspberry Pi it's possible to control circuits on the IntelliCenter via the endpoint described earlier. See [wiki ](https://github.com/mguinness/IntelliCenterGateway/wiki/Wireless-Remote)
+for further details.
+
+![Remote](https://m.media-amazon.com/images/I/31lqrw-tnVL._AC_SL260_.jpg)
 
 ## Playground
 A [test webpage](https://github.com/mguinness/IntelliCenterGateway/blob/master/IntelliCenterGateway/wwwroot/test.html) using jQuery and jsTree to display all the objects returned from the IntelliCenter.  This demonstrates issuing commands like getting object state, subscribing to parameters and turning circuits on and off.  Using this as a reference point it makes it possible to create a customized dashboard with any Javascript framework.
